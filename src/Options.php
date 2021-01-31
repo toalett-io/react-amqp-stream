@@ -12,11 +12,6 @@ class Options
     public ?int $ticket = null;
     public array $arguments = [];
 
-    public static function create(): Options
-    {
-        return new Options();
-    }
-
     public function setConsumerTag(string $consumerTag): Options
     {
         $this->consumerTag = $consumerTag;

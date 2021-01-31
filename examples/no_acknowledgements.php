@@ -9,13 +9,13 @@ use Toalett\React\Stream\StreamAdapter;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $channel = include('amqp_channel.php');
-$queue = $argv[1] ?? 'default-queue';
-$options = Options::create()->setNoAck(true);
+$queueName = $argv[1] ?? 'default-queue';
+$options = (new Options)->setNoAck(true);
 
-$source = new AMQPSource($channel, $queue, $options);
-
+$amqpSource = new AMQPSource($channel, $queueName, $options);
 $loop = Factory::create();
-$stream = new StreamAdapter($source, $loop);
+
+$stream = new StreamAdapter($amqpSource, $loop);
 $stream->on('data', fn(AMQPMessage $m) => print($m->getBody() . PHP_EOL));
 
 $loop->run();

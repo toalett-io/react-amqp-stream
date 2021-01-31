@@ -10,20 +10,21 @@ class AMQPSource implements Source
 {
     private AMQPChannel $channel;
     private Options $options;
-    private string $queue;
+    private string $queueName;
     private bool $closed = true;
     private array $pendingMessages = [];
 
-    public function __construct(AMQPChannel $channel, string $queue, ?Options $options = null)
+    public function __construct(AMQPChannel $channel, string $queueName, ?Options $options = null)
     {
         $this->channel = $channel;
-        $this->queue = $queue;
+        $this->queueName = $queueName;
         $this->options = is_null($options) ? new Options() : clone $options;
+        $this->open();
     }
 
     public function __destruct()
     {
-        $this->channel->close();
+        $this->close();
     }
 
     public function getConsumerTag(): string
@@ -33,12 +34,13 @@ class AMQPSource implements Source
 
     public function open(): void
     {
-        if (!$this->closed) {
+        if (false === $this->closed) {
             return;
         }
+
         $this->options->consumerTag = $this->channel->basic_consume(
-            $this->queue,
-            $this->options->consumerTag ?? '',
+            $this->queueName,
+            $this->options->consumerTag,
             $this->options->noLocal,
             $this->options->noAck,
             $this->options->exclusive,
@@ -47,13 +49,15 @@ class AMQPSource implements Source
             $this->options->ticket,
             $this->options->arguments
         );
+        $this->closed = false;
     }
 
     public function select(): ?AMQPMessage
     {
-        if (!$this->channel->is_consuming()) {
+        if ($this->closed) {
             return null;
         }
+
         $this->channel->wait(null, true);
         return array_shift($this->pendingMessages);
     }
@@ -63,6 +67,7 @@ class AMQPSource implements Source
         if ($this->closed) {
             return;
         }
+
         $this->channel->basic_cancel($this->options->consumerTag);
         $this->closed = true;
     }
