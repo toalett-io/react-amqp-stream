@@ -103,7 +103,7 @@ If you don't provide a [consumer tag](https://www.rabbitmq.com/consumers.html#co
 one. You can retrieve this consumer tag from an [`AMQPSource`](src/AMQPSource.php) with `getConsumerTag()`.
 
 Check out the [examples](examples) folder for some simple implementations. They are not much different than the ones
-given in the above two code blocks. Feel free to play around with them.
+given in this readme. Feel free to play around with them.
 
 _Note:_ There are some concessions with regards to latency due to the fact that the stream adapter library uses polling
 under the hood. Please refer
@@ -117,4 +117,5 @@ __A__: The RuntimeException that is passed to the `on('error', ...)` callback co
 thrown by the `Source`. Calling `getPrevious()` on the RuntimeException gives you the original exception.
 
 __Q__: _Where are the tests_?  
-__A__: Tests might be added later. Feel free to create an issue if this bothers you!
+__A__: Tests might be added later. Feel free to create an issue if the lack of tests bothers you!
+
